@@ -36,6 +36,10 @@ const NavBar = {
             <i data-lucide="file-text" class="nav-icon"></i>
             <span>Xưởng Xuất Bản</span>
           </a>
+          <a href="/write" class="nav-link ${this.currentPage === 'write' ? 'active' : ''}">
+            <i data-lucide="pen-tool" class="nav-icon"></i>
+            <span>Viết Sách</span>
+          </a>
           <a href="/admin" class="nav-link ${this.currentPage === 'admin' ? 'active' : ''}">
             <i data-lucide="settings" class="nav-icon"></i>
             <span>Quản Trị</span>
@@ -69,6 +73,9 @@ const NavBar = {
         </a>
         <a href="/app" class="mobile-link">
           <i data-lucide="file-text"></i> Xưởng Xuất Bản
+        </a>
+        <a href="/write" class="mobile-link">
+          <i data-lucide="pen-tool"></i> Viết Sách
         </a>
         <a href="/admin" class="mobile-link">
           <i data-lucide="settings"></i> Quản Trị
