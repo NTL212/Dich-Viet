@@ -18,6 +18,7 @@ export const translations = {
       subtitle:
         "Upload a document, choose your language pair, and let the pipeline handle extraction, translation, quality scoring, and output \u2014 all in one workflow.",
       startBtn: "Start Translating",
+      writeBtn: "Write a Book",
       viewDashboard: "View Dashboard",
       howItWorks: "How it works",
       howItWorksDesc:
@@ -533,6 +534,7 @@ export const translations = {
       subtitle:
         "T\u1EA3i l\u00EAn t\u00E0i li\u1EC7u, ch\u1ECDn c\u1EB7p ng\u00F4n ng\u1EEF, v\u00E0 \u0111\u1EC3 pipeline x\u1EED l\u00FD tr\u00EDch xu\u1EA5t, d\u1ECBch thu\u1EADt, ch\u1EA5m \u0111i\u1EC3m ch\u1EA5t l\u01B0\u1EE3ng v\u00E0 xu\u1EA5t file \u2014 t\u1EA5t c\u1EA3 trong m\u1ED9t quy tr\u00ECnh.",
       startBtn: "B\u1EAFt \u0111\u1EA7u d\u1ECBch",
+      writeBtn: "Vi\u1EBFt s\u00E1ch",
       viewDashboard: "Xem b\u1EA3ng \u0111i\u1EC1u khi\u1EC3n",
       howItWorks: "C\u00E1ch ho\u1EA1t \u0111\u1ED9ng",
       howItWorksDesc:

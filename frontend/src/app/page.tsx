@@ -9,6 +9,7 @@ import {
   FileText,
   BookOpen,
   ArrowRight,
+  Wand2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/lib/i18n";
@@ -65,8 +66,14 @@ export default function HomePage() {
               <ArrowRight className="w-4 h-4 ml-2" strokeWidth={1.5} />
             </Button>
           </Link>
-          <Link href="/dashboard">
+          <Link href="/write-v2">
             <Button variant="secondary" size="lg">
+              <Wand2 className="w-4 h-4 mr-2" strokeWidth={1.5} />
+              {t.landing.writeBtn}
+            </Button>
+          </Link>
+          <Link href="/dashboard">
+            <Button variant="ghost" size="lg">
               {t.landing.viewDashboard}
             </Button>
           </Link>
