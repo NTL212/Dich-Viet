@@ -46,7 +46,7 @@ class CostConfig:
     economy_provider: str = "deepseek"
     economy_model: str = "deepseek-chat"
     standard_provider: str = "gemini"
-    standard_model: str = "gemini-1.5-flash"
+    standard_model: str = "gemini-2.5-flash"
     premium_provider: str = "claude"
     premium_model: str = "claude-sonnet-4-20250514"
 

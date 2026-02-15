@@ -57,9 +57,8 @@ class UsageStats:
         "claude-sonnet-4-20250514": (3.00, 15.00),
         "claude-3.5-sonnet": (3.00, 15.00),
         "deepseek-chat": (0.14, 0.28),
-        "gemini-2.0-flash-exp": (0.10, 0.40),
-        "gemini-1.5-pro": (1.25, 5.00),
-        "gemini-1.5-flash": (0.075, 0.30),
+        "gemini-2.5-pro": (1.25, 5.00),
+        "gemini-2.5-flash": (0.075, 0.30),
     }
 
     @property
@@ -201,21 +200,23 @@ class UnifiedLLMClient:
         },
         "gemini": {
             "env_key": "GOOGLE_API_KEY",
-            "text_model": "gemini-2.0-flash-exp",
-            "vision_model": "gemini-2.0-flash-exp",
+            "text_model": "gemini-2.5-flash",
+            "vision_model": "gemini-2.5-flash",
         },
     }
 
-    def __init__(self, preferred_provider: Optional[str] = None, api_key: Optional[str] = None):
+    def __init__(self, preferred_provider: Optional[str] = None, api_key: Optional[str] = None, model_override: Optional[str] = None):
         """
         Initialize the unified client.
 
         Args:
             preferred_provider: Preferred provider to try first (optional)
             api_key: User-provided API key (overrides environment variable)
+            model_override: Specific model to use (overrides default for provider)
         """
         self.preferred_provider = preferred_provider
         self._user_api_key = api_key  # User-provided key
+        self.model_override = model_override
         self._clients: Dict[str, Any] = {}
         self._provider_status: Dict[str, ProviderHealth] = {}
         self._current_provider: Optional[str] = None
@@ -460,6 +461,7 @@ class UnifiedLLMClient:
         messages: List[Dict],
         max_tokens: int = 4096,
         response_format: Optional[Dict] = None,
+        model: Optional[str] = None,
         **kwargs
     ) -> Any:
         """
@@ -469,11 +471,15 @@ class UnifiedLLMClient:
             messages: List of message dicts (OpenAI or Anthropic format)
             max_tokens: Maximum tokens in response
             response_format: Optional response format (OpenAI only)
+            model: Optional model override for this specific call
 
         Returns:
             Response object with .content attribute
         """
         has_vision = self._has_vision_content(messages)
+
+        # Use provided model or fall back to instance override
+        use_model = model or self.model_override
 
         # For vision requests, use VISION_PROVIDER_ORDER (Claude first, then OpenAI)
         if has_vision:
@@ -501,7 +507,7 @@ class UnifiedLLMClient:
 
             try:
                 return await self._call_provider(
-                    messages, max_tokens, response_format, has_vision, **kwargs
+                    messages, max_tokens, response_format, has_vision, model=use_model, **kwargs
                 )
             except Exception as e:
                 last_error = e
@@ -542,6 +548,7 @@ class UnifiedLLMClient:
         max_tokens: int,
         response_format: Optional[Dict],
         has_vision: bool,
+        model: Optional[str] = None,
         **kwargs
     ) -> Any:
         """Make actual API call to current provider."""
@@ -574,9 +581,9 @@ class UnifiedLLMClient:
                         new_msg["content"] = content
                     user_msgs.append(new_msg)
 
-            model = config["vision_model"] if has_vision else config["text_model"]
+            use_model = model or (config["vision_model"] if has_vision else config["text_model"])
             response = await client.messages.create(
-                model=model,
+                model=use_model,
                 max_tokens=max_tokens,
                 system=system_msg or "You are a helpful assistant.",
                 messages=user_msgs,
@@ -590,7 +597,7 @@ class UnifiedLLMClient:
                 total_tokens=(response.usage.input_tokens + response.usage.output_tokens) if hasattr(response, 'usage') else 0,
                 elapsed_seconds=elapsed,
                 provider=provider,
-                model=model,
+                model=use_model,
             )
             self._cumulative_stats.add(usage)
 
@@ -600,7 +607,7 @@ class UnifiedLLMClient:
             # Convert messages to OpenAI format
             converted_messages = []
             for msg in messages:
-                new_msg = {"role": msg["role"]}
+                new_msg = {"role": "system" if msg["role"] == "system" else msg["role"]}
                 content = msg.get("content")
                 if isinstance(content, list):
                     new_msg["content"] = self._convert_vision_to_openai(content)
@@ -610,14 +617,14 @@ class UnifiedLLMClient:
 
             # Select model
             if has_vision:
-                if not config.get("vision_model"):
+                if not config.get("vision_model") and not model:
                     raise ValueError(f"{provider} does not support vision")
-                model = config["vision_model"]
+                use_model = model or config["vision_model"]
             else:
-                model = config["text_model"]
+                use_model = model or config["text_model"]
 
             call_kwargs = {
-                "model": model,
+                "model": use_model,
                 "messages": converted_messages,
                 "max_tokens": max_tokens,
             }
@@ -634,7 +641,7 @@ class UnifiedLLMClient:
                 total_tokens=response.usage.total_tokens if response.usage else 0,
                 elapsed_seconds=elapsed,
                 provider=provider,
-                model=model,
+                model=use_model,
             )
             self._cumulative_stats.add(usage)
 

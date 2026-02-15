@@ -41,6 +41,7 @@ class AIClientAdapter:
                     messages=messages,
                     max_tokens=max_tokens,
                     temperature=temperature,
+                    model=model,
                 )
 
                 if isinstance(response, dict):

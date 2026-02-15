@@ -59,10 +59,8 @@ const AI_PROVIDERS = {
     supportsVision: true,
     supportsStreaming: true,
     models: [
-      { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash', badge: '⭐ Recommended' },
-      { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', badge: '' },
-      { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', badge: '⚡ Fast' },
-    ]
+                  { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', badge: '⭐ Recommended' },
+                  { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro', badge: '' },    ]
   },
   deepseek: {
     id: 'deepseek',

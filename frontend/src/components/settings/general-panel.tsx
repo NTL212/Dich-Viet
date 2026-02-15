@@ -108,6 +108,8 @@ export function GeneralPanel() {
               options={[
                 { value: "openai", label: "OpenAI" },
                 { value: "anthropic", label: "Anthropic" },
+                { value: "gemini", label: "Gemini (Google)" },
+                { value: "deepseek", label: "DeepSeek" },
               ]}
             />
             <FieldInput

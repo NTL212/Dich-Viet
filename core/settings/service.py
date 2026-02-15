@@ -171,6 +171,7 @@ class SettingsService:
                     openai_api_key=env.openai_api_key,
                     anthropic_api_key=env.anthropic_api_key,
                     google_api_key=env.google_api_key,
+                    deepseek_api_key=env.deepseek_api_key,
                     mathpix_app_id=env.mathpix_app_id or "",
                     mathpix_app_key=env.mathpix_app_key or "",
                 ),

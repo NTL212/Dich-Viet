@@ -67,6 +67,8 @@ export default function WritePage() {
   const [draftFile, setDraftFile] = useState<File | null>(null);
   const [language, setLanguage] = useState("vi");
   const [targetPages, setTargetPages] = useState(200);
+  const [provider, setProvider] = useState("auto");
+  const [model, setModel] = useState("");
   const [styleNotes, setStyleNotes] = useState("");
   const [uploading, setUploading] = useState(false);
 
@@ -122,6 +124,8 @@ export default function WritePage() {
         language,
         target_pages: targetPages,
         output_formats: ["docx"],
+        provider: provider !== "auto" ? provider : undefined,
+        model: model.trim() || undefined,
         custom_instructions: styleNotes.trim() || undefined,
       });
       router.push(`/write/${book.id}`);
@@ -320,6 +324,38 @@ export default function WritePage() {
                 value={styleNotes}
                 onChange={(e) => setStyleNotes(e.target.value)}
                 placeholder={t.write.styleNotesPlaceholder}
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          {/* Provider & Model Selection */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--fg-primary)" }}>
+                {t.settings.providerLabel}
+              </label>
+              <select
+                value={provider}
+                onChange={(e) => setProvider(e.target.value)}
+                className="w-full"
+              >
+                <option value="auto">{t.translate.engineAuto}</option>
+                <option value="openai">OpenAI</option>
+                <option value="anthropic">Anthropic</option>
+                <option value="gemini">Gemini (Google)</option>
+                <option value="deepseek">DeepSeek</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--fg-primary)" }}>
+                {t.settings.modelLabel}
+              </label>
+              <input
+                type="text"
+                value={model}
+                onChange={(v) => setModel(v.target.value)}
+                placeholder="Default"
                 className="w-full"
               />
             </div>

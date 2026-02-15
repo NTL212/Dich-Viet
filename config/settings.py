@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     anthropic_api_key: str = ""
     google_api_key: str = ""
+    deepseek_api_key: str = ""
 
     # OCR API Keys (Hybrid System)
     mathpix_app_id: Optional[str] = None
@@ -282,6 +283,14 @@ class Settings(BaseSettings):
             if not self.anthropic_api_key:
                 raise ValueError("ANTHROPIC_API_KEY not set in .env")
             return self.anthropic_api_key
+        elif self.provider == "gemini":
+            if not self.google_api_key:
+                raise ValueError("GOOGLE_API_KEY not set in .env")
+            return self.google_api_key
+        elif self.provider == "deepseek":
+            if not self.deepseek_api_key:
+                raise ValueError("DEEPSEEK_API_KEY not set in .env")
+            return self.deepseek_api_key
         else:
             raise ValueError(f"Unsupported provider: {self.provider}")
 
@@ -297,11 +306,21 @@ class Settings(BaseSettings):
                 "fast": "claude-3-5-haiku-20241022",
                 "balanced": "claude-3-5-sonnet-20241022",
                 "quality": "claude-3-5-sonnet-20241022"
+            },
+            "gemini": {
+                "fast": "gemini-2.5-flash",
+                "balanced": "gemini-2.5-pro",
+                "quality": "gemini-2.5-pro"
+            },
+            "deepseek": {
+                "fast": "deepseek-chat",
+                "balanced": "deepseek-chat",
+                "quality": "deepseek-chat"
             }
         }
 
         # Use specified model or auto-select based on quality mode
-        selected_model = self.model or model_map[self.provider][self.quality_mode]
+        selected_model = self.model or model_map.get(self.provider, model_map["openai"])[self.quality_mode]
 
         # Chunk parameters adaptive based on model
         chunk_params = {
@@ -310,6 +329,9 @@ class Settings(BaseSettings):
             "gpt-4-turbo-preview": {"max_chars": 4000, "context_window": 1000},
             "claude-3-5-haiku-20241022": {"max_chars": 2500, "context_window": 600},
             "claude-3-5-sonnet-20241022": {"max_chars": 3500, "context_window": 900},
+            "gemini-2.5-flash": {"max_chars": 3000, "context_window": 1000},
+            "gemini-2.5-pro": {"max_chars": 4000, "context_window": 2000},
+            "deepseek-chat": {"max_chars": 3000, "context_window": 800},
         }
 
         default_chunk = {"max_chars": 2500, "context_window": 600}

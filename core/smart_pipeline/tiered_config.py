@@ -52,7 +52,7 @@ MODELS = {
     # Economy tier
     "gemini-flash": ModelConfig(
         provider="gemini",
-        model_id="gemini-1.5-flash",
+        model_id="gemini-2.5-flash",
         input_cost=0.075,
         output_cost=0.30,
         max_tokens=8192,

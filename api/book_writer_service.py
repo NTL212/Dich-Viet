@@ -162,11 +162,18 @@ class BookWriterService:
             input_text = self._load_input(book_id)
             request = project.request
 
+            # Handle provider override
+            use_ai_service = self._ai_service
+            if request.provider:
+                from ai_providers.unified_client import UnifiedLLMClient
+                # Create specialized client for this job
+                use_ai_service = UnifiedLLMClient(preferred_provider=request.provider, model_override=request.model)
+
             # Update status
             self._update_status(book_id, BookStatus.ANALYZING)
 
             pipeline = BookWriterPipeline(
-                ai_service=self._ai_service,
+                ai_service=use_ai_service,
                 on_progress=lambda **kw: self._broadcast(book_id, kw),
                 data_dir=self.data_dir,
             )
@@ -270,10 +277,16 @@ class BookWriterService:
             input_text = self._load_input(book_id)
             request = project.request
 
+            # Handle provider override
+            use_ai_service = self._ai_service
+            if request.provider:
+                from ai_providers.unified_client import UnifiedLLMClient
+                use_ai_service = UnifiedLLMClient(preferred_provider=request.provider, model_override=request.model)
+
             self._update_status(book_id, BookStatus.WRITING)
 
             pipeline = BookWriterPipeline(
-                ai_service=self._ai_service,
+                ai_service=use_ai_service,
                 on_progress=lambda **kw: self._handle_write_progress(book_id, kw),
                 data_dir=self.data_dir,
             )

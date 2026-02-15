@@ -68,6 +68,7 @@ export interface TranslateRequest {
   target_language: string;
   output_formats?: string[];
   provider?: string;
+  model?: string;
   engine_id?: string;
   profile_id?: string;
   glossary_ids?: string[];
@@ -630,6 +631,7 @@ export interface ApiKeySettingsConfig {
   openai_api_key: string;
   anthropic_api_key: string;
   google_api_key: string;
+  deepseek_api_key: string;
   mathpix_app_id: string;
   mathpix_app_key: string;
 }

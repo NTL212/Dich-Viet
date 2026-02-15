@@ -93,6 +93,7 @@ class CreateBookRequest(BaseModel):
     target_pages: int = 200                 # Approximate page target
     genre: Optional[Genre] = None           # Auto-detect if None
     tone: Optional[str] = None              # e.g. "conversational", "academic"
+    provider: Optional[str] = None         # AI provider: 'openai', 'anthropic', 'gemini', 'deepseek'
     model: str = "claude-opus-4-6"          # AI model for writing
     output_formats: list[OutputFormat] = Field(default_factory=lambda: [OutputFormat.DOCX])
 

@@ -168,6 +168,9 @@ export const jobs = {
     if (request.profile_id) formData.append("profile_id", request.profile_id);
     if (request.engine_id && request.engine_id !== "auto")
       formData.append("engine", request.engine_id);
+    if (request.provider && request.provider !== "auto")
+      formData.append("provider", request.provider);
+    if (request.model) formData.append("model", request.model);
 
     const res = await fetch(`${API_BASE}/api/v2/publish`, {
       method: "POST",

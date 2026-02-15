@@ -69,6 +69,7 @@ async def call_ai(
             messages=messages,
             max_tokens=max_tokens,
             temperature=temperature,
+            model=model,
         )
         usage = response.usage
         return {

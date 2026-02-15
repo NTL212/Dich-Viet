@@ -49,6 +49,8 @@ export function BookCreateForm() {
   const [audience, setAudience] = useState("");
   const [authorName, setAuthorName] = useState("AI Publisher Pro");
   const [language, setLanguage] = useState("en");
+  const [provider, setProvider] = useState("auto");
+  const [model, setModel] = useState("");
   const [outputFormats, setOutputFormats] = useState<BookV2OutputFormat[]>(["docx", "markdown"]);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -102,6 +104,8 @@ export function BookCreateForm() {
         author_name: authorName.trim() || undefined,
         language,
         output_formats: outputFormats.length > 0 ? outputFormats : ["docx"],
+        provider: provider !== "auto" ? provider : undefined,
+        model: model.trim() || undefined,
         ...(mode === "draft" && draftFileId
           ? { continue_from_draft: true, draft_file_id: draftFileId }
           : {}),
@@ -368,6 +372,38 @@ export function BookCreateForm() {
                 type="text"
                 value={authorName}
                 onChange={(e) => setAuthorName(e.target.value)}
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          {/* Provider & Model Selection */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--fg-primary)" }}>
+                {t.settings.providerLabel}
+              </label>
+              <select
+                value={provider}
+                onChange={(e) => setProvider(e.target.value)}
+                className="w-full"
+              >
+                <option value="auto">{t.translate.engineAuto}</option>
+                <option value="openai">OpenAI</option>
+                <option value="anthropic">Anthropic</option>
+                <option value="gemini">Gemini (Google)</option>
+                <option value="deepseek">DeepSeek</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--fg-primary)" }}>
+                {t.settings.modelLabel}
+              </label>
+              <input
+                type="text"
+                value={model}
+                onChange={(v) => setModel(v.target.value)}
+                placeholder="Default"
                 className="w-full"
               />
             </div>

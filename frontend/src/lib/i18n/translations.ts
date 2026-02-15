@@ -374,6 +374,7 @@ export const translations = {
       openaiKey: "OpenAI API Key",
       anthropicKey: "Anthropic API Key",
       googleKey: "Google API Key",
+      deepseekKey: "DeepSeek API Key",
       mathpixId: "Mathpix App ID",
       mathpixKey: "Mathpix App Key",
       // Export
@@ -877,6 +878,7 @@ export const translations = {
       openaiKey: "OpenAI API Key",
       anthropicKey: "Anthropic API Key",
       googleKey: "Google API Key",
+      deepseekKey: "DeepSeek API Key",
       mathpixId: "Mathpix App ID",
       mathpixKey: "Mathpix App Key",
       defaultFormat: "\u0110\u1ECBnh d\u1EA1ng xu\u1EA5t m\u1EB7c \u0111\u1ECBnh",

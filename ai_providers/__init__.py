@@ -5,7 +5,7 @@ AI Publisher Pro - Multi-Provider Support
 Supports:
 - Anthropic Claude (claude-sonnet-4, claude-3.5-sonnet, etc.)
 - OpenAI GPT (gpt-4o, gpt-4-turbo, etc.)
-- Google Gemini (gemini-2.0-flash, gemini-1.5-pro, etc.)
+- Google Gemini (gemini-2.5-flash, gemini-2.5-pro, etc.)
 - DeepSeek (deepseek-chat, deepseek-reasoner)
 
 Usage:

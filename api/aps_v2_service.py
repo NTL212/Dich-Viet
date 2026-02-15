@@ -66,8 +66,8 @@ class LLMClientAdapter:
     fallback logic from ai_providers.unified_client.
     """
 
-    def __init__(self, provider: str = "openai", api_key: Optional[str] = None):
-        self._unified_client = UnifiedLLMClient(preferred_provider=provider, api_key=api_key)
+    def __init__(self, provider: str = "openai", api_key: Optional[str] = None, model: Optional[str] = None):
+        self._unified_client = UnifiedLLMClient(preferred_provider=provider, api_key=api_key, model_override=model)
 
     async def chat(self, messages: List[Dict], response_format: Optional[Dict] = None, max_tokens: int = 8192) -> Any:
         """
@@ -310,6 +310,10 @@ class APSV2Service:
                 use_provider = 'anthropic'
             elif 'gpt' in model.lower():
                 use_provider = 'openai'
+            elif 'gemini' in model.lower():
+                use_provider = 'gemini'
+            elif 'deepseek' in model.lower():
+                use_provider = 'deepseek'
 
         # QAPR: data-driven provider routing when no explicit provider given
         routing_decision = None
@@ -336,7 +340,7 @@ class APSV2Service:
         llm_client = self._llm_client
         if api_key or provider:
             logger.info(f"[{job_id}] Using provider={use_provider}, model={model or 'default'}")
-            llm_client = LLMClientAdapter(use_provider, api_key=api_key)
+            llm_client = LLMClientAdapter(use_provider, api_key=api_key, model=model)
             publisher = UniversalPublisher(
                 llm_client=llm_client,
                 output_dir=self.output_dir,

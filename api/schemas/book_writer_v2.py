@@ -53,6 +53,10 @@ class BookCreateRequest(BaseModel):
     continue_from_draft: bool = Field(False, description="Continue writing from an uploaded draft")
     draft_file_id: Optional[str] = Field(None, description="File ID from upload-draft endpoint")
 
+    # AI Provider selection
+    provider: Optional[str] = Field(None, description="AI provider: 'openai', 'anthropic', 'gemini', 'deepseek'")
+    model: Optional[str] = Field(None, description="Specific model name to use")
+
     class Config:
         json_schema_extra = {
             "example": {

@@ -289,7 +289,7 @@ async def translate_batch(
 
     # Select model based on mode
     models = {
-        "economy": ("gemini", "gemini-1.5-flash"),
+        "economy": ("gemini", "gemini-2.5-flash"),
         "balanced": ("openai", "gpt-4o-mini"),
         "quality": ("openai", "gpt-4o")
     }

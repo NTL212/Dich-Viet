@@ -127,7 +127,7 @@ const PublisherApp = {
   costModeConfig: {
     economy: {
       provider: 'gemini',
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       useVision: false,
       costPerPage: 0.001,  // $0.075/$0.30 per 1M tokens - cheapest
     },

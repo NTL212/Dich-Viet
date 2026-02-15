@@ -34,15 +34,12 @@ class GeminiProvider(BaseAIProvider):
     - Streaming
     """
     
-    MODELS = {
-        "gemini-2.0-flash-exp": "Gemini 2.0 Flash (Latest)",
-        "gemini-1.5-pro": "Gemini 1.5 Pro",
-        "gemini-1.5-flash": "Gemini 1.5 Flash",
-        "gemini-1.5-flash-8b": "Gemini 1.5 Flash 8B (Fast)",
-    }
+        MODELS = {
+            "gemini-2.5-flash": "Gemini 2.5 Flash (Latest)",
+            "gemini-2.5-pro": "Gemini 2.5 Pro",
+        }
     
-    DEFAULT_MODEL = "gemini-2.0-flash-exp"
-    
+        DEFAULT_MODEL = "gemini-2.5-flash"    
     @property
     def provider_type(self) -> AIProviderType:
         return AIProviderType.GEMINI

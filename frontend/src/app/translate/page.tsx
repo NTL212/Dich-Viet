@@ -29,6 +29,8 @@ export default function TranslatePage() {
   const [profileId, setProfileId] = useState("");
   const [selectedGlossaries, setSelectedGlossaries] = useState<string[]>([]);
   const [engineId, setEngineId] = useState("auto");
+  const [provider, setProvider] = useState("auto");
+  const [model, setModel] = useState("");
   const [detecting, setDetecting] = useState(false);
 
   const { data: profilesData } = useProfiles();
@@ -93,6 +95,7 @@ export default function TranslatePage() {
       source_language: sourceLang,
       target_language: targetLang,
       output_formats: selectedFormats,
+      provider: provider !== "auto" ? provider : undefined,
       engine_id: engineId !== "auto" ? engineId : undefined,
       profile_id: profileId || undefined,
       glossary_ids:
@@ -307,6 +310,38 @@ export default function TranslatePage() {
               })()}
             </div>
           )}
+
+          {/* Provider & Model Selection */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--fg-primary)" }}>
+                {t.settings.providerLabel}
+              </label>
+              <select
+                value={provider}
+                onChange={(e) => setProvider(e.target.value)}
+                className="w-full"
+              >
+                <option value="auto">{t.translate.engineAuto}</option>
+                <option value="openai">OpenAI</option>
+                <option value="anthropic">Anthropic</option>
+                <option value="gemini">Gemini (Google)</option>
+                <option value="deepseek">DeepSeek</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--fg-primary)" }}>
+                {t.settings.modelLabel}
+              </label>
+              <input
+                type="text"
+                value={model}
+                onChange={(v) => setModel(v.target.value)}
+                placeholder="Default"
+                className="w-full"
+              />
+            </div>
+          </div>
 
           {/* Profile */}
           {profileList.length > 0 && (

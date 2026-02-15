@@ -58,6 +58,8 @@ class BookWriterV2Service:
         output_formats: List[str] = None,
         words_per_page: int = 300,
         sections_per_chapter: int = 4,
+        provider: Optional[str] = None,
+        model: Optional[str] = None,
     ) -> BookProject:
         """Create a new book project and start generation in background."""
         config = BookWriterConfig(
@@ -65,9 +67,17 @@ class BookWriterV2Service:
             default_sections_per_chapter=sections_per_chapter,
         )
 
+        # Handle provider/model override
+        use_ai_client = self.ai_client
+        if provider or model:
+            from ai_providers.unified_client import UnifiedLLMClient
+            # Create a specialized client for this project
+            spec_client = UnifiedLLMClient(preferred_provider=provider, model_override=model)
+            use_ai_client = AIClientAdapter(spec_client)
+
         pipeline = BookWriterPipeline(
             config=config,
-            ai_client=self.ai_client,
+            ai_client=use_ai_client,
             progress_callback=self._progress_callback,
         )
 

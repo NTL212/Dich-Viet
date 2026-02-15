@@ -65,6 +65,8 @@ async def create_book(
             output_formats=[fmt.value for fmt in request.output_formats],
             words_per_page=request.words_per_page,
             sections_per_chapter=request.sections_per_chapter,
+            provider=request.provider,
+            model=request.model,
         )
         return _to_response(project)
 
