@@ -2,21 +2,21 @@
  * Author Mode Logic (Commercial Refactor)
  * Handles the "Author Studio" Workspace.
  * managed by: ViewManager.js
+ * 
+ * Integrated with Real 9-Agent Backend API (/api/v2/books)
  */
 
 const AuthorApp = {
     state: {
         activeProject: null,
         activeChapter: null,
-        isAIProcessing: false
+        isAIProcessing: false,
+        projects: []
     },
 
     init() {
-        console.log('AuthorApp: Initialized (Commercial Mode)');
+        console.log('AuthorApp: Initialized (Real API Mode)');
         this.bindEvents();
-        // Projects are loaded by ViewManager.onMountAuthor, but we can load here too if needed.
-        // To avoid double-loading in strict mode, we'll let ViewManager handle the data refresh 
-        // or just do an initial check.
     },
 
     bindEvents() {
@@ -34,10 +34,7 @@ const AuthorApp = {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 const action = btn.dataset.action;
-                // Standard ContentEditable commands
                 document.execCommand(action, false, null);
-
-                // Specific Header overrides if needed
                 if (action === 'h1') document.execCommand('formatBlock', false, 'H1');
                 if (action === 'h2') document.execCommand('formatBlock', false, 'H2');
             });
@@ -54,171 +51,241 @@ const AuthorApp = {
         });
     },
 
-    // --- Project Management ---
+    // --- API Integration ---
 
     async loadProjects() {
-        // Mock Data for Commercial Demo
-        const projects = [
-            { id: 'p1', title: 'The Silent Space', status: 'In Progress', words: 12400, lastEdit: '2h ago' },
-            { id: 'p2', title: 'AI Engineering Handbook', status: 'Draft', words: 4500, lastEdit: '1d ago' },
-            { id: 'p3', title: 'Zero to One (Translation)', status: 'Review', words: 32000, lastEdit: '5d ago' }
-        ];
-        this.renderProjectList(projects);
+        try {
+            const response = await fetch('/api/v2/books/');
+            if (!response.ok) throw new Error('Failed to fetch projects');
+            
+            const projects = await response.json();
+            this.state.projects = projects;
+            this.renderProjectList(projects);
+        } catch (error) {
+            console.error('Load projects error:', error);
+            const list = document.getElementById('author-project-list');
+            if (list) list.innerHTML = `<div class="error-state" style="padding:20px; color:var(--accent-primary); text-align:center;">${error.message}</div>`;
+        }
     },
 
     renderProjectList(projects) {
         const list = document.getElementById('author-project-list');
-        if (!list) return; // Guard clause
+        if (!list) return;
 
-        if (projects.length === 0) {
-            list.innerHTML = '<div class="empty-state" style="padding:20px; color:#666; text-align:center;">No active projects</div>';
+        if (!projects || projects.length === 0) {
+            list.innerHTML = '<div class="empty-state" style="padding:20px; color:#666; text-align:center;">Chưa có dự án nào</div>';
             return;
         }
 
-        // Renders using the new .project-card CSS class
         list.innerHTML = projects.map(p => `
-            <div class="project-card" onclick="AuthorApp.openProject('${p.id}', '${p.title}')">
+            <div class="project-card" onclick="AuthorApp.openProject('${p.id}')">
                 <div class="card-header">
-                    <span class="project-title">${p.title}</span>
+                    <span class="project-title">${p.title || 'Sách không tên'}</span>
                 </div>
                 <div class="card-meta">
-                    <span class="status-badge">${p.status}</span>
-                    <span class="word-count">${p.words} words</span>
+                    <span class="status-badge" data-status="${p.status}">${this.formatStatus(p.status)}</span>
+                    <span class="word-count">${p.total_words?.toLocaleString() || 0} từ</span>
                 </div>
                 <div class="card-footer">
-                    Edited ${p.lastEdit}
+                    Cập nhật: ${new Date(p.updated_at).toLocaleDateString('vi-VN')}
                 </div>
             </div>
         `).join('');
     },
 
-    createNewProject() {
-        const title = prompt("New Project Title:");
-        if (title) {
-            // Mock creation
-            alert(`Project "${title}" created (Mock).`);
-            // In real app, re-fetch list
+    formatStatus(status) {
+        const map = {
+            'created': 'Vừa tạo',
+            'analyzing': 'Đang phân tích',
+            'outline_ready': 'Dàn ý đã sẵn sàng',
+            'writing': 'Đang viết nội dung',
+            'complete': 'Hoàn thành',
+            'failed': 'Lỗi'
+        };
+        return map[status] || status;
+    },
+
+    async createNewProject() {
+        const ideas = prompt("Nhập ý tưởng cho cuốn sách của bạn (tối thiểu 10 ký tự):");
+        if (!ideas || ideas.trim().length < 10) {
+            if (ideas) alert("Ý tưởng quá ngắn!");
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/v2/books/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ideas: ideas,
+                    input_mode: 'seeds',
+                    language: 'vi',
+                    target_pages: 100,
+                    output_formats: ['docx']
+                })
+            });
+
+            if (!response.ok) throw new Error('Không thể tạo dự án');
+            
+            const newBook = await response.json();
+            alert(`Đã khởi tạo dự án: ${newBook.title || 'Sách mới'}`);
             this.loadProjects();
+        } catch (error) {
+            alert(`Lỗi: ${error.message}`);
         }
     },
 
-    openProject(id, title) {
-        this.state.activeProject = id;
+    async openProject(bookId) {
+        try {
+            const response = await fetch(`/api/v2/books/${bookId}`);
+            if (!response.ok) throw new Error('Không thể tải thông tin dự án');
+            
+            const project = await response.json();
+            this.state.activeProject = project;
+            
+            // Switch UI
+            document.querySelector('.author-project-list').classList.add('hidden');
+            document.getElementById('author-chapter-nav').classList.remove('hidden');
+            
+            this.renderChapterList(project);
+            
+            // Load first chapter if available
+            if (project.chapters && project.chapters.length > 0) {
+                this.openChapter(project.chapters[0].chapter_number);
+            } else {
+                const editor = document.getElementById('author-editor');
+                editor.innerHTML = `<h1>${project.title || 'Sách mới'}</h1><p>Dự án đang ở trạng thái: <strong>${this.formatStatus(project.status)}</strong>. Vui lòng đợi AI xử lý hoặc kiểm tra dàn ý.</p>`;
+            }
+        } catch (error) {
+            alert(`Lỗi: ${error.message}`);
+        }
+    },
 
-        // Switch Views: Project List -> Editor
-        document.querySelector('.author-project-list').classList.add('hidden');
-        document.getElementById('author-chapter-nav').classList.remove('hidden');
-
-        // Update Context
-        const titleEl = document.getElementById('current-project-title');
-        if (titleEl) titleEl.textContent = title;
-
-        // Mock Chapters
-        const chapters = [
-            { id: 1, title: 'Chapter 1: The Beginning' },
-            { id: 2, title: 'Chapter 2: The Awakening' },
-            { id: 3, title: 'Chapter 3: Resolution' }
-        ];
-
+    renderChapterList(project) {
         const list = document.getElementById('chapter-list');
-        if (list) {
-            list.innerHTML = chapters.map(c => `
-                <li onclick="AuthorApp.openChapter(${c.id})">
-                    <span class="chapter-num">${c.id}</span>
-                    <span class="chapter-name">${c.title}</span>
-                </li>
-            `).join('');
+        if (!list) return;
+
+        if (!project.chapters || project.chapters.length === 0) {
+            list.innerHTML = '<li style="padding:10px; font-size:13px; color:#666;">Chưa có chương nào được viết</li>';
+            return;
         }
 
-        // Open first chapter by default
-        this.openChapter(1);
+        list.innerHTML = project.chapters.map(c => `
+            <li onclick="AuthorApp.openChapter(${c.chapter_number})" style="padding:8px 12px; cursor:pointer; border-radius:6px; margin-bottom:2px; font-size:14px; transition:all 0.2s;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>Chương ${c.chapter_number}: ${c.title}</span>
+                    <span style="font-size:10px; opacity:0.6;">${c.word_count} từ</span>
+                </div>
+            </li>
+        `).join('');
     },
 
     showProjectList() {
         this.state.activeProject = null;
         document.querySelector('.author-project-list').classList.remove('hidden');
         document.getElementById('author-chapter-nav').classList.add('hidden');
+        this.loadProjects();
     },
 
-    openChapter(id) {
-        this.state.activeChapter = id;
+    openChapter(chapterNumber) {
+        const project = this.state.activeProject;
+        if (!project) return;
 
-        // Visual Active State
-        document.querySelectorAll('#chapter-list li').forEach(li => li.classList.remove('active'));
-        // In real app, find specific LI by ID. For now, just clear all.
+        const chapter = project.chapters.find(c => c.chapter_number === chapterNumber);
+        if (!chapter) return;
 
+        this.state.activeChapter = chapter;
         const editor = document.getElementById('author-editor');
-        if (editor) {
-            editor.innerHTML = `<h1>Chapter ${id}</h1><p>Start writing your masterpiece here...</p><p>The quick brown fox jumps over the lazy dog.</p>`;
-        }
+        
+        // Show the best available content
+        const content = chapter.final_content || chapter.edited_content || chapter.enriched_content || chapter.content || "Chương này chưa có nội dung.";
+        
+        editor.innerHTML = `<h1>${chapter.title}</h1><div>${this.formatContent(content)}</div>`;
+        
+        // Highlight active chapter in list
+        document.querySelectorAll('#chapter-list li').forEach((li, idx) => {
+            li.style.background = (idx + 1 === chapterNumber) ? 'var(--accent-light)' : 'transparent';
+            li.style.color = (idx + 1 === chapterNumber) ? 'var(--accent-primary)' : 'inherit';
+        });
     },
 
-    // --- AI Logic ---
+    formatContent(text) {
+        if (!text) return "";
+        return text.split('\n').map(p => p.trim() ? `<p>${p}</p>` : "").join('');
+    },
 
     async triggerAIPropose() {
-        const editor = document.getElementById('author-editor');
-        if (!editor) return;
-
-        const text = editor.innerText;
-        const lastContext = text.slice(-500);
-
-        if (this.state.isAIProcessing) return;
-        this.state.isAIProcessing = true;
+        if (!this.state.activeProject || !this.state.activeChapter) {
+            alert("Hãy chọn một chương để AI viết tiếp!");
+            return;
+        }
 
         const btn = document.getElementById('btn-ai-propose');
-        const originalContent = btn ? btn.innerHTML : 'AI Propose';
+        const editor = document.getElementById('author-editor');
+        const currentContent = editor.innerText;
 
-        if (btn) btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> Thinking...';
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> Đang suy nghĩ...';
+        if (typeof lucide !== 'undefined') lucide.createIcons();
 
         try {
-            // Mock API Call
-            await new Promise(r => setTimeout(r, 1200)); // Simulate delay
-            const suggestion = " suddenly, the atmosphere shifted. The lights flickered, casting long, dancing shadows across the room.";
-            this.insertTextAtCursor(suggestion);
+            // Note: v2 architecture uses full pipeline, but we can call a rewrite/propose endpoint if available
+            // For now, we'll simulate by calling the general rewrite API
+            const response = await fetch('/api/author/propose', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    context: currentContent.slice(-2000),
+                    instruction: "Hãy viết tiếp nội dung chương này một cách tự nhiên và lôi cuốn.",
+                    project_id: this.state.activeProject.id
+                })
+            });
 
-        } catch (e) {
-            console.error(e);
-            alert("AI Error: Failed to generate");
+            if (!response.ok) throw new Error('AI không thể phản hồi lúc này');
+            
+            const data = await response.json();
+            const suggestion = data.variations[0].text;
+            
+            // Append suggestion to editor
+            editor.innerHTML += `<div>${this.formatContent(suggestion)}</div>`;
+            
+            this.addChatMessage("AI", "Tôi đã viết thêm một đoạn nội dung mới vào cuối chương.");
+        } catch (error) {
+            this.addChatMessage("Hệ thống", `Lỗi: ${error.message}`);
         } finally {
-            this.state.isAIProcessing = false;
-            if (btn) btn.innerHTML = originalContent;
-            if (window.lucide) window.lucide.createIcons();
+            btn.disabled = false;
+            btn.innerHTML = '<i data-lucide="sparkles"></i> AI Viết tiếp';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
-    },
-
-    insertTextAtCursor(text) {
-        const editor = document.getElementById('author-editor');
-        if (!editor) return;
-
-        editor.focus();
-        document.execCommand('insertText', false, text);
     },
 
     handleInfoChat() {
         const input = document.getElementById('ai-chat-input');
-        if (!input) return;
-
         const text = input.value.trim();
         if (!text) return;
 
-        const container = document.getElementById('ai-chat-container');
-        if (container) {
-            container.innerHTML += `<div class="ai-message user">${text}</div>`;
-            input.value = '';
+        this.addChatMessage("Bạn", text);
+        input.value = '';
 
-            // Auto-scroll
-            container.scrollTop = container.scrollHeight;
+        // Simulate AI response for chat (can be wired to /api/author/brainstorm)
+        setTimeout(() => {
+            this.addChatMessage("AI", "Tôi đã ghi nhận ý kiến của bạn. Tôi có thể giúp bạn triển khai ý tưởng này vào chương tiếp theo.");
+        }, 1000);
+    },
 
-            // Mock Reply
-            setTimeout(() => {
-                container.innerHTML += `<div class="ai-message system">I am analyzing "${text}"... (AI Assistant)</div>`;
-                container.scrollTop = container.scrollHeight;
-            }, 800);
-        }
+    addChatMessage(sender, text) {
+        const container = document.getElementById('ai-chat-messages');
+        if (!container) return;
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `ai-msg ${sender === 'AI' ? 'system' : ''}`;
+        msgDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+        container.appendChild(msgDiv);
+        container.scrollTop = container.scrollHeight;
     }
 };
 
-// Auto-run init
+// Initialize on Load
 document.addEventListener('DOMContentLoaded', () => {
     AuthorApp.init();
 });
