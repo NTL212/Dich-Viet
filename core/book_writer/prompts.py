@@ -136,6 +136,15 @@ Thiết kế argument arc:
 - CONCLUSION (1-2 chapters): Tổng kết, tầm nhìn, call to action
 </argument_arc_guide>"""
 
+    arc_data = ""
+    extra_data = ""
+    if genre == "fiction":
+        arc_data = '"narrative_arc": {"act1_end": 5, "midpoint": 10, "act2_end": 16, "climax_chapter": 17},'
+        extra_data = '"characters": [{"name": "...", "description": "...", "motivation": "...", "arc": "...", "relationships": {}, "voice_notes": "..."}]'
+    else:
+        arc_data = '"argument_arc": {"hook_chapters": [1,2], "foundation_chapters": [3,4,5], "core_chapters": [6,7,8,9,10,11,12,13], "application_chapters": [14,15,16], "conclusion_chapters": [17,18]},'
+        extra_data = '"terms": [{"term": "...", "definition": "...", "first_chapter": 1}]'
+
     return f"""<role>
 Bạn là kiến trúc sư sách — thiết kế cấu trúc tổng thể cho tác phẩm.
 Nhận Analysis Report làm input, tạo ra Book Blueprint.
@@ -145,7 +154,7 @@ Nhận Analysis Report làm input, tạo ra Book Blueprint.
 Thiết kế blueprint hoàn chỉnh bao gồm:
 1. Metadata: title, subtitle, word estimates
 2. Chapter map: mỗi chapter có purpose, key points, word target
-3. {"Character sheets (fiction)" if genre == "fiction" else "Term sheets (non-fiction)"}
+3. {("Character sheets (fiction)" if genre == "fiction" else "Term sheets (non-fiction)")}
 4. Arc structure
 </task>
 
@@ -180,8 +189,8 @@ Schema:
       "emotional_tone": "..."
     }}
   ],
-  {"\"narrative_arc\": {\"act1_end\": 5, \"midpoint\": 10, \"act2_end\": 16, \"climax_chapter\": 17}," if genre == "fiction" else "\"argument_arc\": {\"hook_chapters\": [1,2], \"foundation_chapters\": [3,4,5], \"core_chapters\": [6,7,8,9,10,11,12,13], \"application_chapters\": [14,15,16], \"conclusion_chapters\": [17,18]},"}
-  {"\"characters\": [{\"name\": \"...\", \"description\": \"...\", \"motivation\": \"...\", \"arc\": \"...\", \"relationships\": {}, \"voice_notes\": \"...\"}]" if genre == "fiction" else "\"terms\": [{\"term\": \"...\", \"definition\": \"...\", \"first_chapter\": 1}]"}
+  {arc_data}
+  {extra_data}
 }}
 </output_rules>"""
 

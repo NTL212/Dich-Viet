@@ -54,7 +54,8 @@ class UsageStats:
     COST_RATES = {
         "gpt-4o": (2.50, 10.00),
         "gpt-4o-mini": (0.15, 0.60),
-        "claude-sonnet-4-20250514": (3.00, 15.00),
+        "claude-3-5-sonnet-20241022": (3.00, 15.00),
+        "claude-3-5-haiku-20241022": (0.25, 1.25),
         "claude-3.5-sonnet": (3.00, 15.00),
         "deepseek-chat": (0.14, 0.28),
         "gemini-2.5-pro": (1.25, 5.00),

@@ -33,13 +33,14 @@ class GeminiProvider(BaseAIProvider):
     - Vision capabilities
     - Streaming
     """
-    
-        MODELS = {
-            "gemini-2.5-flash": "Gemini 2.5 Flash (Latest)",
-            "gemini-2.5-pro": "Gemini 2.5 Pro",
-        }
-    
-        DEFAULT_MODEL = "gemini-2.5-flash"    
+
+    MODELS = {
+        "gemini-2.5-flash": "Gemini 2.5 Flash (Latest)",
+        "gemini-2.5-pro": "Gemini 2.5 Pro",
+    }
+
+    DEFAULT_MODEL = "gemini-2.5-flash"
+
     @property
     def provider_type(self) -> AIProviderType:
         return AIProviderType.GEMINI

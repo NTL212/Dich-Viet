@@ -399,14 +399,13 @@ export function BookCreateForm() {
               <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--fg-primary)" }}>
                 {t.settings.modelLabel}
               </label>
-              <input
-                type="text"
-                value={model}
-                onChange={(v) => setModel(v.target.value)}
-                placeholder="Default"
-                className="w-full"
-              />
-            </div>
+                          <input
+                            type="text"
+                            value={model}
+                            onChange={(e) => setModel(e.target.value)}
+                            placeholder="Default"
+                            className="w-full"
+                          />            </div>
           </div>
 
           {/* Output Formats */}

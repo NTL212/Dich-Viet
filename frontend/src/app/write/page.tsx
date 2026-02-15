@@ -354,7 +354,7 @@ export default function WritePage() {
               <input
                 type="text"
                 value={model}
-                onChange={(v) => setModel(v.target.value)}
+                onChange={(e) => setModel(e.target.value)}
                 placeholder="Default"
                 className="w-full"
               />
