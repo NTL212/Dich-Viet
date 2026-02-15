@@ -14,11 +14,35 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
+  <!-- Author & ViewManager (Commercial Grade) -->
+  <link rel="stylesheet" href="/ui/app/author.css">
+  <script src="/ui/app/author.js" defer></script>
+  <script src="/ui/app/view_manager.js" defer></script>
+
   <style>
     /* =============================================
        AI PUBLISHER PRO - CLAUDE DESIGN SYSTEM
        Minimalist • Clean • Premium • Trust
        ============================================= */
+
+    .workspace {
+      display: block;
+      width: 100%;
+    }
+
+    .workspace.hidden {
+      display: none !important;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .workspace-tab.active {
+      background: var(--bg-hover) !important;
+      color: var(--accent-primary) !important;
+      border-color: var(--accent-primary) !important;
+    }
 
     /* CSS Reset */
     *, *::before, *::after {
@@ -2772,18 +2796,20 @@
           Nhanh chóng, chính xác, đa định dạng.
         </p>
 
-        <!-- Mode Selector -->
-        <div style="display: flex; justify-content: center; gap: var(--space-4); margin-top: var(--space-8);">
-          <a href="/app" class="header-btn" style="width: auto; height: auto; padding: var(--space-2) var(--space-4); background: var(--bg-hover); color: var(--accent-primary); border: 1px solid var(--accent-primary);">
+        <!-- Mode Selector (Workspace Switcher) -->
+        <div class="workspace-nav" style="display: flex; justify-content: center; gap: var(--space-4); margin-top: var(--space-8);">
+          <div class="workspace-tab active" data-target="workspace-translator" style="width: auto; height: auto; padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--border-medium); display: flex; align-items: center; cursor: pointer; transition: all 0.2s;">
             <i data-lucide="languages" style="width: 16px; height: 16px; margin-right: 8px;"></i>
             Dịch thuật
-          </a>
-          <a href="/write" class="header-btn" style="width: auto; height: auto; padding: var(--space-2) var(--space-4);">
+          </div>
+          <div class="workspace-tab" data-target="workspace-author" style="width: auto; height: auto; padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--border-medium); display: flex; align-items: center; cursor: pointer; transition: all 0.2s;">
             <i data-lucide="pen-tool" style="width: 16px; height: 16px; margin-right: 8px;"></i>
             Viết sách AI
-          </a>
+          </div>
         </div>
       </section>
+
+      <div id="workspace-translator" class="workspace active">
 
       <!-- Upload Zone -->
       <div class="upload-container">
@@ -3168,6 +3194,82 @@
           </div>
         </div>
       </section>
+
+      <!-- END OF TRANSLATOR WORKSPACE -->
+      </div>
+
+      <!-- AUTHOR WORKSPACE (Commercial Grade) -->
+      <div id="workspace-author" class="workspace hidden">
+        <div class="author-layout">
+          <!-- Sidebar -->
+          <aside class="author-sidebar">
+            <div style="padding: 20px;">
+              <button id="btn-new-project" class="primary-btn" style="width: 100%; justify-content: center; margin-bottom: 20px;">
+                <i data-lucide="plus" style="width: 16px; height: 16px; margin-right: 8px;"></i>
+                Dự án mới
+              </button>
+              
+              <div id="author-project-list" class="author-project-list">
+                <!-- Projects will be rendered here -->
+              </div>
+
+              <div id="author-chapter-nav" class="hidden" style="margin-top: 20px;">
+                <button id="btn-back-projects" class="header-btn" style="width: 100%; margin-bottom: 15px; border: 1px solid var(--border-medium);">
+                  <i data-lucide="arrow-left" style="width: 14px; height: 14px; margin-right: 8px;"></i>
+                  Tất cả dự án
+                </button>
+                <div style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;">Chương sách</div>
+                <ul id="chapter-list" style="list-style: none; display: flex; flexDirection: column; gap: 4px;"></ul>
+              </div>
+            </div>
+          </aside>
+
+          <!-- Stage (Editor) -->
+          <div class="author-stage">
+            <div class="stage-toolbar">
+              <div style="display: flex; gap: 8px;">
+                <button class="header-btn tool-btn" data-action="bold" title="Bold"><i data-lucide="bold"></i></button>
+                <button class="header-btn tool-btn" data-action="italic" title="Italic"><i data-lucide="italic"></i></button>
+                <button class="header-btn tool-btn" data-action="underline" title="Underline"><i data-lucide="underline"></i></button>
+                <div style="width: 1px; height: 24px; background: var(--border-light); margin: 0 8px;"></div>
+                <button class="header-btn tool-btn" data-action="h1" title="Heading 1"><i data-lucide="heading-1"></i></button>
+                <button class="header-btn tool-btn" data-action="h2" title="Heading 2"><i data-lucide="heading-2"></i></button>
+              </div>
+              <div style="flex: 1;"></div>
+              <button id="btn-ai-propose" class="primary-btn">
+                <i data-lucide="sparkles" style="width: 16px; height: 16px; margin-right: 8px;"></i>
+                AI Viết tiếp
+              </button>
+            </div>
+
+            <div class="editor-viewport">
+              <div id="author-editor" class="paper-surface" contenteditable="true">
+                <h1>Khởi đầu mới</h1>
+                <p>Hãy bắt đầu viết kiệt tác của bạn ở đây...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aux (AI Assistant) -->
+          <aside class="author-aux">
+            <div class="aux-header">
+              <i data-lucide="brain" style="width: 16px; height: 16px; margin-right: 10px;"></i>
+              Trợ lý AI
+            </div>
+            <div id="ai-chat-messages" class="aux-content">
+              <div class="ai-msg system">
+                Tôi là trợ lý viết sách của bạn. Tôi có thể giúp bạn lập dàn ý, gợi ý nội dung hoặc chỉnh sửa văn bản.
+              </div>
+            </div>
+            <div class="aux-input">
+              <textarea id="ai-chat-input" placeholder="Hỏi AI về dự án này..."></textarea>
+              <button id="btn-ai-send">
+                <i data-lucide="send"></i>
+              </button>
+            </div>
+          </aside>
+        </div>
+      </div>
     </main>
 
     <!-- Footer -->
