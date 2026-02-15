@@ -6,6 +6,7 @@ pydantic-settings>=2.2.0
 # API clients
 openai>=1.0.0
 anthropic>=0.25.0
+google-generativeai>=0.4.0  # Required for Gemini support
 httpx>=0.26.0  # Also used for Deepseek OCR API
 requests>=2.31.0
 
@@ -17,15 +18,19 @@ Pillow>=10.0.0  # Also used for OCR image preprocessing
 openpyxl>=3.1.0
 PyMuPDF>=1.23.0  # Advanced PDF processing for STEM mode
 regex>=2023.0.0  # Enhanced regex for formula detection
+lxml>=5.1.0     # Required for OMML (math) processing
 
 # PDF generation & export
 reportlab>=4.0.0
 docx2pdf>=0.1.8  # Optional: Windows/Mac only for DOCX to PDF conversion
+jinja2>=3.1.0    # Required for PDF templates v2
+markdown>=3.5.0  # Required for EPUB export
 
 # Async and utilities
 aiofiles>=23.0.0
 tqdm>=4.66.0
 python-dateutil>=2.8.0
+psutil>=5.9.0    # Required for Health Monitoring and resource tracking
 
 # Web API (Phase 6)
 fastapi>=0.109.0
