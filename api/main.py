@@ -308,6 +308,21 @@ async def publisher_studio():
     return RedirectResponse(url="/ui/landing/")
 
 
+@app.get("/write", include_in_schema=False)
+async def book_writer_ui():
+    """Serve Book Writer UI (Author workspace in Claude-style UI)"""
+    claude_ui = ui_path / "app-claude-style.html"
+    if claude_ui.exists():
+        return FileResponse(claude_ui)
+    return RedirectResponse(url="/ui/landing/")
+
+
+@app.get("/translate", include_in_schema=False)
+async def translator_ui():
+    """Alias for /app (Translator workspace)"""
+    return await publisher_studio()
+
+
 @app.get("/admin", include_in_schema=False)
 async def admin_dashboard():
     """Serve Admin Dashboard page"""

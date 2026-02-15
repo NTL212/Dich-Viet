@@ -8,10 +8,20 @@ const ViewManager = {
         console.log('ViewManager: Initializing Commercial Architecture...');
         this.bindGlobalNav();
 
-        // Auto-detect active workspace or default to translator
-        // Check hash or localstorage
-        const lastWorkspace = localStorage.getItem('active_workspace') || 'workspace-translator';
-        this.switchWorkspace(lastWorkspace);
+        // Auto-detect active workspace
+        // 1. Check URL path
+        let defaultWorkspace = 'workspace-translator';
+        const path = window.location.pathname;
+        if (path.includes('/write')) {
+            defaultWorkspace = 'workspace-author';
+        } else if (path.includes('/translate')) {
+            defaultWorkspace = 'workspace-translator';
+        } else {
+            // 2. Fallback to localStorage or default
+            defaultWorkspace = localStorage.getItem('active_workspace') || 'workspace-translator';
+        }
+
+        this.switchWorkspace(defaultWorkspace);
     },
 
     bindGlobalNav() {
